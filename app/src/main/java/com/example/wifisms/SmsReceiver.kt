@@ -5,18 +5,24 @@ import android.content.Context
 import android.content.Intent
 import android.net.wifi.WifiManager
 import android.provider.Telephony
+import android.widget.Toast
 
 class SmsReceiver : BroadcastReceiver() {
 
-    // شماره‌ی خودت: ۱۰ رقم آخر، بدون صفر اول و بدون +98
     private val myNumber = "9128540857"
 
     override fun onReceive(ctx: Context, intent: Intent) {
         val msgs = Telephony.Sms.Intents.getMessagesFromIntent(intent) ?: return
         for (m in msgs) {
-            val from = m.originatingAddress ?: continue
-            if (!from.endsWith(myNumber)) continue
-            when (m.messageBody?.trim()?.lowercase()) {
+            val from = m.originatingAddress ?: "?"
+            val body = m.messageBody?.trim()?.lowercase() ?: ""
+            Toast.makeText(ctx, "from=$from body=$body", Toast.LENGTH_LONG).show()
+
+            if (!from.endsWith(myNumber)) {
+                Toast.makeText(ctx, "شماره نخورد", Toast.LENGTH_LONG).show()
+                continue
+            }
+            when (body) {
                 "on" -> setWifi(ctx, true)
                 "off" -> setWifi(ctx, false)
             }
@@ -26,6 +32,7 @@ class SmsReceiver : BroadcastReceiver() {
     @Suppress("DEPRECATION")
     private fun setWifi(ctx: Context, on: Boolean) {
         val wm = ctx.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        wm.isWifiEnabled = on
+        val ok = wm.setWifiEnabled(on)
+        Toast.makeText(ctx, "wifi set=$on result=$ok", Toast.LENGTH_LONG).show()
     }
 }
