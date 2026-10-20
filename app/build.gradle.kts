@@ -23,3 +23,6 @@ android {
         jvmTarget = "17"
     }
 }
+dependencies {
+    implementation("com.linkedin.dexmaker:dexmaker:2.28.3")
+}
